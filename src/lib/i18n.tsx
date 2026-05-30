@@ -157,6 +157,15 @@ const en: Dict = {
   activity: "Activity",
   goal: "Goal",
   language: "Language",
+  security: "Security",
+  current_password: "Current password",
+  new_password: "New password",
+  confirm_password: "Confirm password",
+  change_password: "Change password",
+  password_updated: "Password updated",
+  password_mismatch: "Passwords do not match",
+  password_min_length: "New password must be at least 6 characters",
+  current_password_required: "Current password is required",
 };
 
 const ko: Dict = {
@@ -299,6 +308,15 @@ const ko: Dict = {
   activity: "활동량",
   goal: "목표",
   language: "언어",
+  security: "보안",
+  current_password: "현재 비밀번호",
+  new_password: "새 비밀번호",
+  confirm_password: "비밀번호 확인",
+  change_password: "비밀번호 변경",
+  password_updated: "비밀번호가 변경되었습니다",
+  password_mismatch: "비밀번호가 일치하지 않습니다",
+  password_min_length: "새 비밀번호는 최소 6자이어야 합니다",
+  current_password_required: "현재 비밀번호가 필요합니다",
 };
 
 const dicts: Record<Lang, Dict> = { en, ko };

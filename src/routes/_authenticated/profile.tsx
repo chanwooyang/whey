@@ -24,6 +24,10 @@ function ProfilePage() {
   } | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
 
   useEffect(() => {
@@ -65,6 +69,46 @@ function ProfilePage() {
     const g = calculateProteinGoal(Number(profile.weight_kg), profile.activity_level, profile.goal_type);
     set("protein_goal_g", g);
     toast.success(t("suggested_g", { g }));
+  }
+
+  async function updatePassword() {
+    if (!currentPassword.trim()) {
+      toast.error(t("current_password_required"));
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error(t("password_min_length"));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error(t("password_mismatch"));
+      return;
+    }
+    if (!email) {
+      toast.error(t("something_wrong"));
+      return;
+    }
+
+    setPasswordSaving(true);
+    try {
+      const { error: reauthError } = await supabase.auth.signInWithPassword({
+        email,
+        password: currentPassword,
+      });
+      if (reauthError) throw reauthError;
+
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      if (updateError) throw updateError;
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      toast.success(t("password_updated"));
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : t("something_wrong"));
+    } finally {
+      setPasswordSaving(false);
+    }
   }
 
   async function signOut() {
@@ -160,6 +204,16 @@ function ProfilePage() {
             </select>
           </Row>
         </Group>
+
+        <Group title={t("security")}>
+          <Row label={t("current_password")}><input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="bg-transparent text-right focus:outline-none" /></Row>
+          <Row label={t("new_password")}><input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-transparent text-right focus:outline-none" /></Row>
+          <Row label={t("confirm_password")}><input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-transparent text-right focus:outline-none" /></Row>
+        </Group>
+
+        <button onClick={updatePassword} disabled={passwordSaving} className="w-full rounded-2xl bg-surface text-brand py-3.5 font-semibold disabled:opacity-50">
+          {passwordSaving ? t("saving") : t("change_password")}
+        </button>
 
         <button onClick={save} disabled={saving} className="w-full rounded-2xl bg-foreground text-brand py-3.5 font-semibold disabled:opacity-50">
           {saving ? t("saving") : t("save")}
